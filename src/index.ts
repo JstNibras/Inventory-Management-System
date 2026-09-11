@@ -5,26 +5,25 @@ import { InventoryService } from './services/InventoryService.js';
 import { TerminalController } from './controllers/TerminalController.js';
 import { AdminUser } from './models/User.js';
 
-// 1. Register Interface Contracts for Dependency Injection
 container.registerSingleton('IProductRepository', InMemoryProductRepository);
 container.registerSingleton('IInventoryService', InventoryService);
 
 async function main() {
-  // 2. Resolve Controllers and Services via Container
   const controller = container.resolve(TerminalController);
   const inventoryService = container.resolve(InventoryService);
 
-  // 3. Seed Initial Inventory Data
-  const prod1 = await inventoryService.addProduct('Mechanical Keyboard', 120, 15);
-  await inventoryService.addProduct('Wireless Mouse', 45, 30);
-  const prod3 = await inventoryService.addProduct('USB-C Dock', 85, 10);
+  const keyboard = await inventoryService.addProduct('Mechanical Keyboard', 120, 15);
+  const mouse = await inventoryService.addProduct('Wireless Mouse', 45, 30);
+  const monitor = await inventoryService.addProduct('4K Monitor', 400, 8);
 
-  await inventoryService.addProduct('Gaming Monitor 27"', 350, 5);
+  const singleProduct = await inventoryService.getProductById(mouse.id);
+  console.log(`Fetched Item: ${singleProduct.name} - Price: $${singleProduct.price}`);
 
-  // 4. Demonstrate Business Logic (Stock Adjustment)
-  await inventoryService.adjustStock(prod3.id, -2);
+  await inventoryService.adjustStock(keyboard.id, -3);
+  await inventoryService.adjustStock(monitor.id, 2);
 
-  // 5. Render Output in Terminal as an Admin User
+  await inventoryService.deleteProduct(mouse.id); // Deletes Wireless Mouse
+
   const admin = new AdminUser('USR-101', 'Ahmad Nibras');
   await controller.renderDashboard(admin);
 }
