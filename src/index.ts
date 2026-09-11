@@ -5,6 +5,7 @@ import { InventoryService } from './services/InventoryService.js';
 import { TerminalController } from './controllers/TerminalController.js';
 import { AdminUser } from './models/User.js';
 
+// 1. Register Interface Contracts for Dependency Injection
 container.registerSingleton('IProductRepository', InMemoryProductRepository);
 container.registerSingleton('IInventoryService', InventoryService);
 
@@ -16,10 +17,12 @@ async function main() {
   // 3. Seed Initial Inventory Data
   const prod1 = await inventoryService.addProduct('Mechanical Keyboard', 120, 15);
   await inventoryService.addProduct('Wireless Mouse', 45, 30);
-  await inventoryService.addProduct('USB-C Dock', 85, 10);
+  const prod3 = await inventoryService.addProduct('USB-C Dock', 85, 10);
+
+  await inventoryService.addProduct('Gaming Monitor 27"', 350, 5);
 
   // 4. Demonstrate Business Logic (Stock Adjustment)
-  await inventoryService.adjustStock(prod1.id, -2);
+  await inventoryService.adjustStock(prod3.id, -2);
 
   // 5. Render Output in Terminal as an Admin User
   const admin = new AdminUser('USR-101', 'Ahmad Nibras');
