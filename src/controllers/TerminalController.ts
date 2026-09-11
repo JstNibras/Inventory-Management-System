@@ -10,9 +10,7 @@ export class TerminalController {
 
   async renderDashboard(currentUser: User): Promise<void> {
     console.clear();
-    console.log('====================================================');
     console.log(` TERMINAL INVENTORY SYSTEM - User: ${currentUser.name} [${currentUser.role}]`);
-    console.log('====================================================');
     console.log(`Permissions: ${currentUser.getPermissions().join(', ')}\n`);
 
     const items = await this.inventoryService.listInventory();
