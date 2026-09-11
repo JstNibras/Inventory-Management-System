@@ -22,7 +22,7 @@ async function main() {
   await inventoryService.adjustStock(keyboard.id, -3);
   await inventoryService.adjustStock(monitor.id, 2);
 
-  await inventoryService.deleteProduct(mouse.id); // Deletes Wireless Mouse
+  await inventoryService.deleteProduct(mouse.id);
 
   const admin = new AdminUser('USR-101', 'Ahmad Nibras');
   await controller.renderDashboard(admin);
