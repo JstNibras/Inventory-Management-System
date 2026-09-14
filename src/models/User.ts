@@ -1,15 +1,10 @@
-export interface IUser {
-    id : string;
-    name: string;
-    role: 'ADMIN' | 'CUSTOMER';
-}
+import { IEntity } from "../interfaces/IEntity";
 
-export type UserCreateDTO = Pick<IUser, 'name' | 'role'>;
-
-export abstract class User implements IUser {
+export abstract class User implements IEntity {
   constructor(
     public readonly id: string,
     public name: string,
+    public email: string,
     public readonly role: 'ADMIN' | 'CUSTOMER'
   ) {}
 
@@ -17,21 +12,19 @@ export abstract class User implements IUser {
 }
 
 export class AdminUser extends User {
-  constructor(id: string, name: string) {
-    super(id, name, 'ADMIN');
+  constructor(id: string, name: string, email: string) {
+    super(id, name, email, 'ADMIN');
   }
-
   getPermissions(): string[] {
-    return ['CREATE_PRODUCT', 'READ_PRODUCT', 'UPDATE_STOCK', 'DELETE_PRODUCT'];
+    return ['CREATE_PRODUCT', 'MANAGE_ORDERS', 'VIEW_REPORTS'];
   }
 }
 
 export class CustomerUser extends User {
-  constructor(id: string, name: string) {
-    super(id, name, 'CUSTOMER');
+  constructor(id: string, name: string, email: string) {
+    super(id, name, email, 'CUSTOMER');
   }
-
   getPermissions(): string[] {
-    return ['READ_PRODUCT'];
+    return ['CREATE_ORDER', 'VIEW_OWN_ORDERS'];
   }
 }
