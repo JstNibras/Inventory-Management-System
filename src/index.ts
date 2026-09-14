@@ -1,31 +1,42 @@
 import 'reflect-metadata';
 import { container } from 'tsyringe';
-import { InMemoryProductRepository } from './repositories/InMemoryProductRepository.js';
-import { InventoryService } from './services/InventoryService.js';
-import { TerminalController } from './controllers/TerminalController.js';
+import { ProductRepository } from './repositories/ProductRepository.js';
+import { OrderRepository } from './repositories/OrderRepository.js';
+import { OrderService } from './services/OrderService.js';
+import { Product } from './models/Product.js';
 import { AdminUser } from './models/User.js';
 
-container.registerSingleton('IProductRepository', InMemoryProductRepository);
-container.registerSingleton('IInventoryService', InventoryService);
+// 1. Register Singletons into DI Container
+container.registerSingleton('ProductRepository', ProductRepository);
+container.registerSingleton('OrderRepository', OrderRepository);
+container.registerSingleton(OrderService);
 
-async function main() {
-  const controller = container.resolve(TerminalController);
-  const inventoryService = container.resolve(InventoryService);
+async function bootstrap() {
+  console.log('--- SYSTEM INITIALIZING ---');
+  
+  const productRepo = container.resolve(ProductRepository);
+  const orderService = container.resolve(OrderService);
 
-  const keyboard = await inventoryService.addProduct('Mechanical Keyboard', 120, 15);
-  const mouse = await inventoryService.addProduct('Wireless Mouse', 45, 30);
-  const monitor = await inventoryService.addProduct('4K Monitor', 400, 8);
+  // 2. Seed Master Data
+  const prod1 = new Product('PROD-1', 'Mechanical Keyboard', 120, 'CAT-1', 10);
+  const prod2 = new Product('PROD-2', 'Gaming Mouse', 60, 'CAT-1', 15);
+  await productRepo.save(prod1);
+  await productRepo.save(prod2);
 
-  const singleProduct = await inventoryService.getProductById(mouse.id);
-  console.log(`Fetched Item: ${singleProduct.name} - Price: $${singleProduct.price}`);
+  // 3. Instantiate Actor User
+  const admin = new AdminUser('USR-101', 'Ahmad Nibras', 'nibras@example.com');
+  console.log(`User Logged In: ${admin.name} | Permissions: ${admin.getPermissions().join(', ')}`);
 
-  await inventoryService.adjustStock(keyboard.id, -3);
-  await inventoryService.adjustStock(monitor.id, 2);
+  // 4. Execute Transaction via Business Service Layer
+  const newOrder = await orderService.createOrder(admin.id, [
+    { productId: 'PROD-1', quantity: 2 },
+    { productId: 'PROD-2', quantity: 1 }
+  ]);
 
-  await inventoryService.deleteProduct(mouse.id);
-
-  const admin = new AdminUser('USR-101', 'Ahmad Nibras');
-  await controller.renderDashboard(admin);
+  console.log('\n--- ORDER PLACED SUCCESSFULLY ---');
+  console.log(`Order ID: ${newOrder.id}`);
+  console.log(`Total Amount: $${newOrder.totalAmount}`);
+  console.log(`Remaining ${prod1.name} Stock: ${prod1.stock}`);
 }
 
-main().catch(err => console.error('Application Error:', err));
+bootstrap().catch((err) => console.error('Application Execution Error:', err.message));
