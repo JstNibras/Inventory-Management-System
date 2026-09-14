@@ -1,19 +1,14 @@
-export interface IProduct {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-}
+import { IEntity } from '../interfaces/IEntity.js';
+import { InsufficientStockError } from '../errors/AppError.js';
 
-export type ProductUpdateDTO = Partial<Omit<IProduct, 'id'>>;
-
-export class Product implements IProduct {
+export class Product implements IEntity {
   private _stock: number;
 
   constructor(
     public readonly id: string,
     public name: string,
     public price: number,
+    public categoryId: string,
     initialStock: number
   ) {
     this._stock = Math.max(0, initialStock);
@@ -23,10 +18,10 @@ export class Product implements IProduct {
     return this._stock;
   }
 
-  public updateStock(quantity: number): void {
-    if (this._stock + quantity < 0) {
-      throw new Error(`Insufficient stock for product: ${this.name}`);
+  public updateStock(quantityChange: number): void {
+    if (this._stock + quantityChange < 0) {
+      throw new InsufficientStockError(this.name);
     }
-    this._stock += quantity;
+    this._stock += quantityChange;
   }
 }
