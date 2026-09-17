@@ -1,8 +1,8 @@
 import { inject, injectable } from 'tsyringe';
-import { Order, OrderItem } from '../models/Order.js';
-import { ProductRepository } from '../repositories/ProductRepository.js';
-import { OrderRepository } from '../repositories/OrderRepository.js';
-import { NotFoundError } from '../errors/AppError.js';
+import { Order, OrderItem } from '../models/Order';
+import { ProductRepository } from '../repositories/ProductRepository';
+import { OrderRepository } from '../repositories/OrderRepository';
+import { NotFoundError } from '../errors/AppError';
 
 @injectable()
 export class OrderService {
