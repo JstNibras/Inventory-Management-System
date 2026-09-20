@@ -1,4 +1,4 @@
-import { IEntity } from '../interfaces/IEntity.js';
+import { IEntity } from '../interfaces/IEntity';
 import { InsufficientStockError } from '../errors/AppError.js';
 
 export class Product implements IEntity {

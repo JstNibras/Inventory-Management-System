@@ -1,31 +1,39 @@
 import 'reflect-metadata';
 import { container } from 'tsyringe';
-import { InMemoryProductRepository } from './repositories/InMemoryProductRepository.js';
-import { InventoryService } from './services/InventoryService.js';
-import { TerminalController } from './controllers/TerminalController.js';
-import { AdminUser } from './models/User.js';
+import { ProductRepository } from './repositories/ProductRepository';
+import { OrderRepository } from './repositories/OrderRepository';
+import { OrderService } from './services/OrderService';
+import { Product } from './models/Product';
+import { AdminUser, CustomerUser } from './models/User';
 
-container.registerSingleton('IProductRepository', InMemoryProductRepository);
-container.registerSingleton('IInventoryService', InventoryService);
+container.registerSingleton('ProductRepository', ProductRepository);
+container.registerSingleton('OrderRepository', OrderRepository);
+container.registerSingleton(OrderService);
 
-async function main() {
-  const controller = container.resolve(TerminalController);
-  const inventoryService = container.resolve(InventoryService);
+async function terminal() {
+  console.log('--- SYSTEM INITIALIZING ---');
 
-  const keyboard = await inventoryService.addProduct('Mechanical Keyboard', 120, 15);
-  const mouse = await inventoryService.addProduct('Wireless Mouse', 45, 30);
-  const monitor = await inventoryService.addProduct('4K Monitor', 400, 8);
+  const productRepo = container.resolve(ProductRepository);
+  const orderRepo = container.resolve(OrderRepository);
+  const orderService = container.resolve(OrderService);
 
-  const singleProduct = await inventoryService.getProductById(mouse.id);
-  console.log(`Fetched Item: ${singleProduct.name} - Price: $${singleProduct.price}`);
+  const admin = new AdminUser('USR-001', 'Ahmad Nibras', 'nibras@example.com');
+  const customer = new CustomerUser('USR-002', 'John Doe', 'john@example.com');
 
-  await inventoryService.adjustStock(keyboard.id, -3);
-  await inventoryService.adjustStock(monitor.id, 2);
+  console.log(`Admin Permissions (${admin.name}):`, admin.getPermissions().join(', '));
 
-  await inventoryService.deleteProduct(mouse.id);
+  const keyboard = new Product('PROD-1', 'Mechanical Keyboard', 120, 'CAT-ELEC', 10);
+  const mouse = new Product('PROD-2', 'Wireless Mouse', 50, 'CAT-ELEC', 25);
+  const monitor = new Product('PROD-3', '4K Monitor', 350, 'CAT-ELEC', 5);
 
-  const admin = new AdminUser('USR-101', 'Ahmad Nibras');
-  await controller.renderDashboard(admin);
+  await productRepo.save(keyboard);
+  await productRepo.save(mouse);
+  await productRepo.save(monitor);
+
+  const allProducts = await productRepo.findAll();
+  console.log(`Total Products in Database: ${allProducts.length}`);
+
+  keyboard.updateStock(5); 
 }
 
-main().catch(err => console.error('Application Error:', err));
+terminal().catch((err) => console.error('Application Execution Error:', err.message));

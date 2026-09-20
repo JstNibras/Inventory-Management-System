@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
-import { IEntity } from '../interfaces/IEntity.js';
-import { IRepository } from '../interfaces/IRepository.js';
+import { IEntity } from '../interfaces/IEntity';
+import { IRepository } from '../interfaces/IRepository';
 
 @injectable()
 export abstract class InMemoryRepository<T extends IEntity> implements IRepository<T> {
